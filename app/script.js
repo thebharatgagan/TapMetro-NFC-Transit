@@ -248,6 +248,5 @@ function playGateBeep(success) {
     osc.start();
     osc.stop(ctx.currentTime + (success ? 0.16 : 0.32));
   } catch (e) {
-    // Ignore audio block if browser restricts autoplay
   }
 }
