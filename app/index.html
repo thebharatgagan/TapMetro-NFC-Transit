@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TapMetro — Smart NFC & WhatsApp Metro Transit</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Top Navbar -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-logo" style="background: #ffffff; border-radius: 50%; padding: 3px;">
+        <!-- Delhi Metro (DMRC) Official Emblem SVG -->
+        <svg viewBox="0 0 100 100" width="100%" height="100%" aria-label="Delhi Metro Logo">
+          <circle cx="50" cy="50" r="46" fill="#ffffff" />
+          <circle cx="50" cy="50" r="43" fill="none" stroke="#be2229" stroke-width="9" />
+          <line x1="9" y1="35" x2="91" y2="35" stroke="#be2229" stroke-width="8.5" />
+          <line x1="9" y1="65" x2="91" y2="65" stroke="#be2229" stroke-width="8.5" />
+          <line x1="60" y1="35" x2="36" y2="65" stroke="#be2229" stroke-width="8.5" />
+        </svg>
+      </div>
+      <div>
+        <h1>TapMetro <span class="badge-india">INDIA</span></h1>
+        <p>Pan-India NFC & WhatsApp Transit System</p>
+      </div>
+    </div>
+
+    <!-- Mobile View Switcher -->
+    <div class="view-switcher" id="viewSwitcher">
+      <button class="switch-btn active" data-view="phone">Commuter Phone</button>
+      <button class="switch-btn" data-view="gate">Metro AFC Gate</button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="workspace">
+    <!-- LEFT PANEL: COMMUTER SMARTPHONE -->
+    <section class="panel phone-panel active-view" id="phonePanel">
+      <div class="phone-frame">
+        <!-- Phone Status Bar -->
+        <div class="phone-notch">
+          <span>9:41 AM</span>
+          <span class="nfc-pill" id="topNfcIndicator">NFC Ready</span>
+        </div>
+
+        <!-- App Mode Tabs -->
+        <div class="phone-tabs">
+          <button class="tab-btn active" data-tab="whatsappTab">
+            WhatsApp Transit Bot
+          </button>
+          <button class="tab-btn" data-tab="cardTab">
+            My NFC Card
+          </button>
+        </div>
+
+        <!-- TAB 1: WHATSAPP BOT -->
+        <div class="tab-content active" id="whatsappTab">
+          <div class="wa-header">
+            <div class="wa-avatar" style="padding: 3px;">
+              <svg viewBox="0 0 100 100" width="100%" height="100%" aria-label="DMRC">
+                <circle cx="50" cy="50" r="46" fill="#ffffff" />
+                <circle cx="50" cy="50" r="43" fill="none" stroke="#be2229" stroke-width="9" />
+                <line x1="9" y1="35" x2="91" y2="35" stroke="#be2229" stroke-width="8.5" />
+                <line x1="9" y1="65" x2="91" y2="65" stroke="#be2229" stroke-width="8.5" />
+                <line x1="60" y1="35" x2="36" y2="65" stroke="#be2229" stroke-width="8.5" />
+              </svg>
+            </div>
+            <div class="wa-info">
+              <h3>
+                DMRC Official Transit
+                <span class="verified-tick" title="Verified Business">✓</span>
+              </h3>
+              <p>Online • Instant Card Sync & QR</p>
+            </div>
+          </div>
+
+          <div class="wa-chat-body" id="chatMessages">
+            <!-- Initial Messages rendered by JS -->
+          </div>
+
+          <!-- Quick Reply Action Buttons -->
+          <div class="wa-actions">
+            <button class="wa-chip" onclick="handleBotAction('balance')">Check Balance</button>
+            <button class="wa-chip highlight" onclick="handleBotAction('recharge', 100)">+ ₹100 UPI</button>
+            <button class="wa-chip highlight" onclick="handleBotAction('recharge', 200)">+ ₹200 UPI</button>
+            <button class="wa-chip highlight" onclick="handleBotAction('recharge', 500)">+ ₹500 UPI</button>
+            <button class="wa-chip" onclick="handleBotAction('qr')">Single QR Ticket</button>
+          </div>
+        </div>
+
+        <!-- TAB 2: MY VIRTUAL NFC CARD -->
+        <div class="tab-content" id="cardTab">
+          <!-- Virtual NCMC Card -->
+          <div class="ncmc-card">
+            <div class="card-top">
+              <span class="card-tag">NCMC VIRTUAL PASS • ₹0 FEE</span>
+              <!-- Contactless Wave SVG -->
+              <svg class="wave-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6" />
+                <path d="M12.5 16.5A5.5 5.5 0 0 0 15 12c0-2.5-1-4-2-6" />
+                <path d="M16.5 18.5A8.5 8.5 0 0 0 19 12c0-3.5-1.5-6-3-9" />
+              </svg>
+            </div>
+
+            <div class="card-balance-box">
+              <span class="label">Available Transit Balance</span>
+              <h2 id="cardBalanceDisplay">₹120.00</h2>
+              <span class="sync-status">⚡ Auto-Synced (No AVM Tap Needed)</span>
+            </div>
+
+            <div class="card-bottom">
+              <span>ID: 6074 •••• •••• 8921</span>
+              <span>RuPay NCMC</span>
+            </div>
+          </div>
+
+          <!-- Hardware NFC Toggle -->
+          <div class="nfc-sensor-box">
+            <div>
+              <strong>Android Web NFC Sensor</strong>
+              <p id="nfcStatusText">Simulation Mode (Works on all devices)</p>
+            </div>
+            <button class="sensor-btn" id="enableNfcBtn" onclick="toggleRealNFC()">
+              Enable NFC
+            </button>
+          </div>
+
+          <!-- Big Tap Action Button -->
+          <div class="tap-zone">
+            <button class="tap-phone-btn" onclick="triggerGateTap()">
+              <span class="pulse-ring"></span>
+              TAP PHONE AT GATE
+            </button>
+            <p class="tap-hint">0.3s Offline HCE Emulation • 10% Smart Discount</p>
+          </div>
+
+          <!-- Recent Trips Log -->
+          <div class="trips-section">
+            <h4>Recent Metro Trips</h4>
+            <ul class="trip-list" id="tripHistoryList">
+              <!-- Populated by JS -->
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: METRO AFC GATE SIMULATOR -->
+    <section class="panel gate-panel" id="gatePanel">
+      <div class="gate-machine">
+        <div class="gate-header">
+          <span class="gate-badge">AFC TURNSTILE SIMULATOR</span>
+          <h2>Delhi Metro / Pan-India Gate #04</h2>
+        </div>
+
+        <!-- Station Selector -->
+        <div class="route-selector">
+          <div class="input-group">
+            <label for="entryStation">Entry Station</label>
+            <select id="entryStation" onchange="updateFareEstimate()">
+              <option value="0">Govindpuri (Violet Line)</option>
+              <option value="1">Lajpat Nagar (Pink / Violet)</option>
+              <option value="2">Hauz Khas (Yellow / Magenta)</option>
+              <option value="3">Rajiv Chowk (Blue / Yellow)</option>
+              <option value="4">Kashmere Gate (Red / Yellow / Violet)</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="exitStation">Exit Station</label>
+            <select id="exitStation" onchange="updateFareEstimate()">
+              <option value="0">Govindpuri (Violet Line)</option>
+              <option value="1">Lajpat Nagar (Pink / Violet)</option>
+              <option value="2">Hauz Khas (Yellow / Magenta)</option>
+              <option value="3" selected>Rajiv Chowk (Blue / Yellow)</option>
+              <option value="4">Kashmere Gate (Red / Yellow / Violet)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fare Calculation Preview -->
+        <div class="fare-card">
+          <div>
+            <span>Token Fare: <del id="baseFareText">₹30</del></span>
+            <p class="discount-tag">10% Smart NFC Discount Applied</p>
+          </div>
+          <div class="final-fare" id="finalFareText">₹27</div>
+        </div>
+
+        <!-- Turnstile LED Screen -->
+        <div class="gate-screen state-ready" id="gateScreen">
+          <div class="gate-icon" id="gateIcon">📡</div>
+          <h3 id="gateTitle">READY TO TAP</h3>
+          <p id="gateSubtitle">Bring NFC smartphone near reader</p>
+          <div class="gate-meta" id="gateMeta"></div>
+          <button class="quick-recharge-btn hidden" id="gateRechargeBtn" onclick="jumpToWhatsAppRecharge()">
+            Instant Recharge on WhatsApp →
+          </button>
+        </div>
+
+        <!-- Direct Reader Trigger -->
+        <button class="gate-test-btn" onclick="triggerGateTap()">
+          Simulate Phone Tap on Reader
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
